@@ -49,6 +49,8 @@ public class Robot extends TimedRobot {
 
     // boolean keepClawClose = false;
 
+    double gravSpeed = .1;
+
     @Override
     public void robotInit() {
 
@@ -119,10 +121,10 @@ public class Robot extends TimedRobot {
         else if (m_driver.getR1Button()) // <---- slow speed for drive if right bumper is held down
         {
             // set max when slowed down
-            m_robotdrive.setMaxOutput(.32);
+            m_robotdrive.setMaxOutput(.5);
         } else {
             // set max for default
-            m_robotdrive.setMaxOutput(.5);
+            m_robotdrive.setMaxOutput(.2 );
         }
 
         // these take the up/down of one joystick and left/right of other one and
@@ -130,23 +132,33 @@ public class Robot extends TimedRobot {
         m_robotdrive.arcadeDrive(m_driver.getLeftY(), m_driver.getRawAxis(4));
 
         ////////////////////////////////////////////////////
+        // -------------- Gravity Code ------------------ //
+        if (m_operator.getRawButton(8)) {
+
+            gravSpeed = 0.11;
+        }
+        else if (m_operator.getRawButton(7)) {
+
+            gravSpeed = 0.25;
+        }
+        else if (m_operator.getRawButton(9)) {
+
+            gravSpeed = 0;
+        }
+        ////////////////////////////////////////////////////
         // ------------ Main Arm Motor Code ---------------//
         /* read joystick on FightStick to control arm motor */
 
-        if (m_operator.getRawAxis(1) < 0)
-            ; // <------------------forward/upward movement
+        if (m_operator.getRawAxis(1) > 0.9)
+        // <------------------forward/upward movement
         {
-            m_arm.set(0.395); // move arm up
-        }
-
-        if (m_operator.getRawAxis(1) == 0) // <------------------stop movement
-        {
-            m_arm.set(0.0697); // arm fight gravity
-        }
-
-        if (m_operator.getRawAxis(1) > 0) // <------------------backward/downward movement
+            m_arm.set(0.485); // move arm up
+        } else if (m_operator.getRawAxis(1) < -0.9) // <------------------backward/downward movement
         {
             m_arm.set(-0.1055); // move arm down
+        } else // <------------------stop movement
+        {
+             m_arm.set(gravSpeed); // arm fight gravity
         }
 
         /*
@@ -170,16 +182,14 @@ public class Robot extends TimedRobot {
         // -------------- Extend Arm Motor Code -------------//
 
         /* read button RB and LB on Joystick to control extend motor */
-        if (m_operator.getRawAxis(5) < 0) { // <------------------Button for extending arm (RB)
+        if (m_operator.getPOV() == 0) { // <------------------Button for extending arm (RB)
             // set extend motor to forward to extend arm
-            m_extend.set(-0.65);
-        }
-        if (m_operator.getRawAxis(5) > 0) // <------------------Button for retracting arm (LB)
+            m_extend.set(-0.45);
+        } else if (m_operator.getPOV() == 180) // <------------------Button for retracting arm (LB)
         {
             // set extend motor speed to retract arm
-            m_extend.set(0.5);
-        }
-        if (m_operator.getRawAxis(5) == 0) // <------------------extend stop on release
+            m_extend.set(0.45);
+        } else// <------------------extend stop on release
         {
             m_extend.set(0);
             // m_extend.set(-0.075); //arm extends
@@ -211,12 +221,12 @@ public class Robot extends TimedRobot {
 
         if (m_operator.getRawButton(6)) { // <------------------Button for wrist up movement (A)
             // set wrist motor speed to forward lowering wrist
-            m_wrist.set(0.2955);
+            m_wrist.set(0.4);
         }
         if (m_operator.getRawButton(5)) // <------------------Button for wrist down movement (B)
         {
             // set wrist motor speed to reverse raising wrist
-            m_wrist.set(-0.65);
+            m_wrist.set(-0.8);
         }
         if (m_operator.getRawButtonReleased(6) || m_operator.getRawButtonReleased(5)) // <------------------wrist stop
                                                                                       // on release
@@ -231,26 +241,26 @@ public class Robot extends TimedRobot {
         if (m_operator.getRawButton(1)) // <------------------Button for claw close movement (Y)
         {
             // set claw motor speed to forward to close claw
-            m_claw.set(0.79);
+            m_claw.set(1);
         }
 
         if (m_operator.getRawButtonReleased(1)) // <------------------Button for claw close movement (Y) released
         {
-            m_claw.set(0.7); // continously close claw
-            m_arm.set(0.0825);
+            m_claw.set(0.65); // continously close claw
+            m_arm.set(gravSpeed);
             // m_claw.set(0); //stop claw movement
         }
 
         if (m_operator.getRawButton(2)) // <------------------Button for claw open movement (B)
         {
             // set claw motor speed to open claw
-            m_claw.set(-0.25);
+            m_claw.set(-0.75);
         }
 
         if (m_operator.getRawButtonReleased(2)) // <------------------Button for claw open movement (B) released
         {
-            m_claw.set(0); // stop claw movement
-            m_arm.set(0);
+            m_claw.set(-.35); // stop claw movement
+            m_arm.set(gravSpeed);
         }
 
         //////////////////////////////////////////////////////////
